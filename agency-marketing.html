@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>대행 마케팅파트 · 팀별 현황판</title>
+<meta name="description" content="대행 마케팅파트 2026년 8월 현황">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+<div id="app"></div>
+
+<script src="./assets/data.js"></script>
+<script src="./assets/ui.js"></script>
+<script>
+const M = DATA.agencyMarketing;
+const avgTask = Math.round(M.tasks.reduce((s, t) => s + t.pct, 0) / M.tasks.length);
+
+document.getElementById("app").innerHTML =
+  nav("agency-marketing") +
+  '<div class="wrap">' +
+
+  '<div class="head">' +
+    '<div><h1>대행 마케팅파트</h1><p class="sub">고객사 현황 · 매출 구조 · 광고 운영 성과 · 과제 진행률</p></div>' +
+    '<div class="period">' + esc(DATA.meta.period) + '</div>' +
+  '</div>' +
+
+  '<div class="banner"><span class="ic">⚠️</span><span>' +
+    '<b>이 페이지의 숫자는 전부 샘플입니다.</b> 이 팀의 실제 수치를 아직 받지 못해, ' +
+    '화면 구성과 그래프가 어떻게 보이는지 확인할 수 있도록 임시 숫자를 넣어두었습니다. ' +
+    '실제 값을 주시면 <code>assets/data.js</code> 한 파일만 고쳐서 바로 교체됩니다.' +
+  '</span></div>' +
+
+  /* 팀 · 매출 */
+  section("팀 · 매출",
+    '<div class="grid g4">' + kpis([
+      { k: "매출", v: M.revenue.v, n: M.revenue.note, hi: true, sample: true },
+      { k: "팀원 수", v: M.members.v, n: M.members.note, sample: true },
+      { k: "고객사 수", v: M.clients.v, n: M.clients.note, sample: true },
+      { k: "월 평균 객단가", v: M.unitPrice.v, n: M.unitPrice.note, sample: true }
+    ]) + '</div>' +
+    '<div class="split" style="margin-top:14px">' +
+      card('월별 매출 <span class="smp">샘플</span>',
+        bars({ data: M.monthly, goal: M.monthlyGoal, color: "var(--c1)", height: 170 }),
+        "만원 · 점선 = 월 목표 " + fmt(M.monthlyGoal) + "만"
+      ) +
+      card('고객사 수 추이 <span class="smp">샘플</span>',
+        bars({ data: M.clientFlow, color: "var(--c5)", height: 170, vfmt: v => v + "" }),
+        "개사"
+      ) +
+    '</div>'
+  ) +
+
+  /* 고객사 증감 */
+  section("고객사 증감",
+    '<div class="grid g4">' + kpis([
+      { k: "이번달 신규", v: M.newClients.v, n: M.newClients.note, dir: "up", sample: true },
+      { k: "이번달 해지", v: M.lostClients.v, n: M.lostClients.note, dir: "dn", sample: true },
+      { k: "순증", v: M.netChange.v, n: M.netChange.note, dir: "up", sample: true },
+      { k: "해지율", v: M.churnRate.v, n: M.churnRate.note, sample: true }
+    ]) + '</div>'
+  ) +
+
+  /* 광고 운영 */
+  section("광고 운영",
+    '<div class="grid g4">' + kpis([
+      { k: "광고비 지출", v: M.adSpend.v, n: M.adSpend.note, sample: true },
+      { k: "광고 효율 (ROAS)", v: M.roas.v, n: M.roas.note, sample: true },
+      { k: "제작 광고 소재", v: fmt(M.creative.made) + "개", n: "이번달 제작", sample: true },
+      { k: "위닝 소재", v: M.creative.winning + "개", n: fmt(M.creative.made) + "개 중 " + M.creative.winRate + "%", sample: true }
+    ]) + '</div>' +
+    '<div style="margin-top:14px">' +
+      card('소재 효율 <span class="smp">샘플</span>',
+        progress([
+          { label: "위닝 소재 비율", pct: M.creative.winRate, note: M.creative.winning + "개 / " + fmt(M.creative.made) + "개 제작", color: "var(--c1)" }
+        ]) +
+        '<div style="font-size:12.5px;color:var(--ink-3);margin-top:13px;line-height:1.6">' +
+          '참고 — 아카데미 초자립 라이브의 위닝 소재 비율은 <b style="color:var(--ink)">21.2%</b>(33개 중 7개, 실측)입니다. 비교 기준으로 쓸 수 있습니다.' +
+        '</div>'
+      ) +
+    '</div>'
+  ) +
+
+  /* 과제 진행률 */
+  section("이번달 시도중인 과제",
+    '<div class="split-3-2">' +
+      card('과제별 진행률 <span class="smp">샘플</span>', progress(M.tasks)) +
+      card('요약',
+        '<div class="grid g2">' + kpis([
+          { k: "진행중 과제", v: M.tasks.length + "건", n: "이번달 시도중", sample: true },
+          { k: "평균 진행률", v: avgTask + "%", n: "4건 평균", sample: true }
+        ]) + '</div>' +
+        '<div style="margin-top:14px">' +
+          progress([{ label: "전체 평균 진행률", pct: avgTask, note: M.tasks.filter(t => t.pct >= 70).length + "건이 70% 이상" }]) +
+        '</div>'
+      ) +
+    '</div>',
+    "진행률 " + avgTask + "% 평균"
+  ) +
+
+  /* 짚어볼 점 */
+  section("짚어볼 점",
+    '<div class="card insight"><ul>' +
+      '<li><b>이 페이지의 수치는 실제 값이 아닙니다.</b> 아래 해석은 구조가 어떻게 읽히는지 보여주는 예시이며, 실제 숫자를 주시면 다시 작성하겠습니다.</li>' +
+      '<li>지켜볼 지표는 <b>해지율과 순증</b>입니다. 신규가 늘어도 해지가 따라 붙으면 매출이 제자리인데, 이 표에서는 한눈에 잡힙니다.</li>' +
+      '<li><b>객단가 × 고객사 수 = 매출</b>이라, 매출이 안 오를 때 둘 중 어느 쪽이 막혔는지 이 페이지에서 바로 구분됩니다.</li>' +
+      '<li>과제 진행률은 <b>주 1회 갱신</b>을 권합니다. 월말에 몰아서 채우면 현황판 역할을 못 합니다.</li>' +
+    '</ul></div>'
+  ) +
+
+  pageFooter() +
+  '</div>';
+</script>
+</body>
+</html>

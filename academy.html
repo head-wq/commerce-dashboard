@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아카데미 · 팀별 현황판</title>
+<meta name="description" content="아카데미 2026년 8월 현황">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+<div id="app"></div>
+
+<script src="./assets/data.js"></script>
+<script src="./assets/ui.js"></script>
+<script>
+const A = DATA.academy;
+
+/* 채널 합계 & 퍼널 */
+const tVisits = A.channels.reduce((s, c) => s + c.visits, 0);
+const tLeads  = A.channels.reduce((s, c) => s + c.leads, 0);
+const tPosts  = A.channels.reduce((s, c) => s + c.posts, 0);
+const leadRate = (tLeads / tVisits * 100).toFixed(2);
+const buyRate  = (A.dailySales.total / tLeads * 100).toFixed(2);
+
+/* 일 판매건수 → 라인차트용 */
+const daily = A.dailySales.series.map((v, i) => ({ label: (i + 1) + "일", v: v }));
+
+document.getElementById("app").innerHTML =
+  nav("academy") +
+  '<div class="wrap">' +
+
+  '<div class="head">' +
+    '<div><h1>아카데미</h1><p class="sub">초자립 판매 현황 · 채널별 마케팅 성과 · 수강생 성과</p></div>' +
+    '<div class="period">' + esc(DATA.meta.period) + '</div>' +
+  '</div>' +
+
+  sampleBanner("광고 소재 33개 · 위닝 7개 · CPL 14,406원 · 광고비 2.35억 · 메타 모집 16,327명") +
+
+  /* 매출 */
+  section("매출",
+    '<div class="grid g4">' + kpis([
+      { k: "8월 매출", v: A.revenue.v, n: A.revenue.note, dir: A.revenue.dir, hi: true, sample: true },
+      { k: "목표 달성률", v: A.revenue.rate + "%", n: "목표 " + A.revenue.goal, sample: true },
+      { k: "객단가", v: A.unitPrice.v, n: A.unitPrice.note, sample: true },
+      { k: "ROAS", v: A.roas.v, n: A.roas.note, sample: true }
+    ]) + '</div>' +
+    '<div class="split" style="margin-top:14px">' +
+      card('월별 매출 <span class="smp">샘플</span>',
+        bars({ data: A.monthly.series, color: "var(--c1)", height: 165, vfmt: v => v + "억" }),
+        "억원"
+      ) +
+      card('환불률 · 전환 요약 <span class="smp">샘플</span>',
+        progress([
+          { label: "목표 달성률", pct: A.revenue.rate, note: "9.8억 / 12억" },
+          { label: "유입 → 신청 전환", pct: Number(leadRate), note: fmt(tVisits) + "명 유입 → " + fmt(tLeads) + "명 신청 (" + leadRate + "%)" },
+          { label: "신청 → 구매 전환", pct: Number(buyRate), note: fmt(tLeads) + "명 신청 → " + fmt(A.dailySales.total) + "건 구매 (" + buyRate + "%)" },
+          { label: "환불률", pct: 4.2, note: "결제 대비 환불 " + A.refundRate.v, color: "var(--bad)" }
+        ])
+      ) +
+    '</div>'
+  ) +
+
+  /* 일 판매건수 */
+  section("초자립 일 판매건수",
+    '<div class="grid g4">' + kpis([
+      { k: "8월 총 판매", v: fmt(A.dailySales.total) + "건", n: "31일 누적", sample: true },
+      { k: "일 평균", v: A.dailySales.avg + "건", n: "하루 기준", sample: true },
+      { k: "최고 기록", v: A.dailySales.peak + "건", n: A.dailySales.peakDay + " (2차 라이브)", sample: true },
+      { k: "라이브 기여", v: "42%", n: "라이브 6일이 전체 판매의 42%", sample: true }
+    ]) + '</div>' +
+    '<div style="margin-top:14px">' +
+      card('일별 판매건수 <span class="smp">샘플</span>',
+        line({ data: daily, id: "gAcademy", color: "var(--c1)", height: 150, aria: "8월 일별 판매건수 추이" }) +
+        '<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-3);margin-top:7px">' +
+          '<span>8/1</span><span>8/12 · 1차 라이브</span><span>8/27 · 2차 라이브</span><span>8/31</span>' +
+        '</div>',
+        "점선 = 일 평균 " + A.dailySales.avg + "건"
+      ) +
+    '</div>'
+  ) +
+
+  /* 마케팅 현황 */
+  section("마케팅 현황",
+    card('채널별 발행량 · 유입량 · 전환수',
+      table({
+        cols: ["채널", "발행량", "유입량", "전환수(신청)", "전환율", "유입 비중"],
+        rows: A.channels.map((c, i) => [
+          { html: '<span class="dot" style="background:' + ["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)"][i % 6] + '"></span>' + esc(c.name) },
+          c.posts ? fmt(c.posts) + "개" + (c.postsReal ? "" : "") : "—",
+          fmt(c.visits),
+          { html: "<b>" + fmt(c.leads) + "</b>" + (c.leadsReal ? "" : "") },
+          (c.leads / c.visits * 100).toFixed(2) + "%",
+          { html: '<span class="mini"><i style="width:' + (c.visits / tVisits * 100).toFixed(1) + '%;background:' + ["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)"][i % 6] + '"></i></span>' }
+        ]),
+        foot: ["합계", fmt(tPosts) + "개", fmt(tVisits), fmt(tLeads), leadRate + "%", ""]
+      }),
+      "메타 광고 전환수 16,327명은 실측값, 나머지는 샘플"
+    ) +
+    '<div class="split" style="margin-top:14px">' +
+      card('채널별 유입량 <span class="smp">샘플</span>',
+        hbars({ data: A.channels.map(c => ({ label: c.name, v: c.visits })) })
+      ) +
+      card('채널별 전환수 <span class="smp">일부 샘플</span>',
+        hbars({ data: A.channels.map(c => ({ label: c.name, v: c.leads })) })
+      ) +
+    '</div>'
+  ) +
+
+  /* 광고 소재 — 실측 */
+  section("광고 소재 · 리드 (실측)",
+    '<div class="grid g5">' + kpis([
+      { k: "제작 소재", v: A.creative.made + "개", n: "1·2차 라이브 합계" },
+      { k: "위닝 소재", v: A.creative.winning + "개", n: A.creative.made + "개 중 " + A.creative.winRate + "%" },
+      { k: "모집 리드", v: fmt(A.creative.leads) + "명", n: "소재당 " + A.creative.perCreative + "명" },
+      { k: "CPL", v: fmt(A.creative.cpl) + "원", n: "리드 1명당 비용" },
+      { k: "광고비", v: A.creative.adSpend, n: "메타 광고 집행" }
+    ]) + '</div>',
+    "2026년 8월 PDF 실측값"
+  ) +
+
+  /* 리뷰 & 성공 고객 */
+  section("초자립 리뷰 · 성공 고객",
+    '<div class="split">' +
+      card('리뷰 <span class="smp">샘플</span>',
+        '<div class="grid g2">' + kpis([
+          { k: "리뷰 개수", v: fmt(A.reviews.count) + "개", n: "8월 누적" },
+          { k: "만족도 점수", v: "★ " + A.reviews.score, n: "5점 만점" }
+        ]) + '</div>'
+      ) +
+      card('초자립 성공 고객 <span class="smp">샘플</span>',
+        '<div class="grid g2" style="margin-bottom:14px">' + kpis([
+          { k: "1천만원 달성", v: A.success.tenM + "명", n: "수강생 " + fmt(A.success.students) + "명 중 " + (A.success.tenM / A.success.students * 100).toFixed(1) + "%" },
+          { k: "2배 달성", v: A.success.double + "명", n: "1천만원 달성자의 " + (A.success.double / A.success.tenM * 100).toFixed(0) + "%" }
+        ]) + '</div>' +
+        progress([
+          { label: "1천만원 달성률", pct: Number((A.success.tenM / A.success.students * 100).toFixed(1)), note: A.success.tenM + "명 / " + fmt(A.success.students) + "명" },
+          { label: "2배 달성률", pct: Number((A.success.double / A.success.students * 100).toFixed(1)), note: A.success.double + "명 / " + fmt(A.success.students) + "명" }
+        ])
+      ) +
+    '</div>'
+  ) +
+
+  /* 짚어볼 점 */
+  section("짚어볼 점",
+    '<div class="card insight"><ul>' +
+      '<li><b>위닝 소재 비율 21.2%는 실측값입니다.</b> 33개 만들어 7개가 성과를 냈습니다. 나머지 26개 제작비가 어디로 갔는지 뜯어보면 CPL을 더 낮출 여지가 있습니다.</li>' +
+      '<li><b>판매가 라이브에 심하게 몰려 있습니다.</b> 1·2차 라이브 6일이 월 판매의 42%를 차지합니다. 라이브 없는 주의 판매를 끌어올릴 상시 퍼널이 필요합니다.</li>' +
+      '<li><b>메타 광고가 리드의 대부분을 만듭니다.</b> 16,327명 중 압도적 비중이라, 메타 단가가 오르면 전체 모집이 흔들립니다. 유튜브·검색 비중을 키워두는 게 안전합니다.</li>' +
+      '<li>매출·판매건수·리뷰·성공 고객 수는 <b>아직 실제 값을 받지 못해 샘플</b>입니다. 숫자 주시면 바로 교체하겠습니다.</li>' +
+    '</ul></div>'
+  ) +
+
+  pageFooter() +
+  '</div>';
+</script>
+</body>
+</html>

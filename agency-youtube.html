@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>대행 유튜브파트 · 팀별 현황판</title>
+<meta name="description" content="대행팀 유튜브파트 2026년 8월 현황">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+<div id="app"></div>
+
+<script src="./assets/data.js"></script>
+<script src="./assets/ui.js"></script>
+<script>
+const Y = DATA.agencyYoutube;
+const tViews = Y.channels.reduce((s, c) => s + c.views, 0);
+
+document.getElementById("app").innerHTML =
+  nav("agency-youtube") +
+  '<div class="wrap">' +
+
+  '<div class="head">' +
+    '<div><h1>대행팀 유튜브파트</h1><p class="sub">고객사 유지 구조 · 채널별 조회수 · 문의 전환 · 이번달 회고</p></div>' +
+    '<div class="period">' + esc(DATA.meta.period) + '</div>' +
+  '</div>' +
+
+  '<div class="banner"><span class="ic">⚠️</span><span>' +
+    '<b>이 페이지의 숫자는 전부 샘플입니다.</b> 이 팀의 실제 수치를 아직 받지 못해, ' +
+    '화면 구성과 그래프가 어떻게 보이는지 확인할 수 있도록 임시 숫자를 넣어두었습니다. ' +
+    '<b>잘된 점 · 시도할 것</b>은 주신 예시를 그대로 넣어두었습니다.' +
+  '</span></div>' +
+
+  /* 팀 · 매출 */
+  section("팀 · 매출",
+    '<div class="grid g4">' + kpis([
+      { k: "매출", v: Y.revenue.v, n: Y.revenue.note, hi: true, sample: true },
+      { k: "팀원 수", v: Y.members.v, n: Y.members.note, sample: true },
+      { k: "고객사 수", v: Y.clients.v, n: Y.clients.note, sample: true },
+      { k: "월 평균 객단가", v: Y.unitPrice.v, n: Y.unitPrice.note, sample: true }
+    ]) + '</div>' +
+    '<div style="margin-top:14px">' +
+      card('월별 매출 <span class="smp">샘플</span>',
+        bars({ data: Y.monthly, goal: Y.monthlyGoal, color: "var(--c6)", height: 170 }),
+        "만원 · 점선 = 월 목표 " + fmt(Y.monthlyGoal) + "만"
+      ) +
+    '</div>'
+  ) +
+
+  /* 유지 구조 */
+  section("고객사 유지 구조",
+    '<div class="grid g5">' + kpis([
+      { k: "평균 유지개월", v: Y.retention.v, n: Y.retention.note, sample: true },
+      { k: "고객 생애가치 (LTV)", v: Y.ltv.v, n: Y.ltv.note, sample: true },
+      { k: "이번달 신규", v: Y.newClients.v, n: Y.newClients.note, dir: "up", sample: true },
+      { k: "이번달 해지", v: Y.lostClients.v, n: Y.lostClients.note, dir: "dn", sample: true },
+      { k: "순증", v: "+1개사", n: "신규 2 − 해지 1", dir: "up", sample: true }
+    ]) + '</div>' +
+    '<div style="margin-top:14px">' +
+      card('유지 기간이 만드는 매출 <span class="smp">샘플</span>',
+        '<div style="font-size:13px;color:var(--ink-2);line-height:1.7">' +
+          '고객사 한 곳을 유치하면 평균 <b style="color:var(--ink)">' + Y.retention.v + '</b> 동안 ' +
+          '월 <b style="color:var(--ink)">' + Y.unitPrice.v + '</b>씩, 총 <b style="color:var(--ink)">' + Y.ltv.v + '</b>의 매출이 발생합니다.<br>' +
+          '해지 1건은 단순히 이번달 ' + Y.unitPrice.v + ' 손실이 아니라 <b style="color:var(--bad)">남은 유지기간만큼의 매출</b>이 함께 사라지는 것입니다.' +
+        '</div>'
+      ) +
+    '</div>'
+  ) +
+
+  /* 조회수 · 문의 */
+  section("조회수 · 문의 전환",
+    '<div class="grid g3">' + kpis([
+      { k: "채널 총 조회수 / 월", v: (tViews / 10000).toFixed(1) + "만", n: fmt(tViews) + "회 · " + Y.channels.length + "개 채널", sample: true },
+      { k: "유입 문의", v: Y.inquiries.v, n: Y.inquiries.note, sample: true },
+      { k: "조회수 대비 문의 전환율", v: Y.inquiryRate.v, n: Y.inquiryRate.note, sample: true }
+    ]) + '</div>' +
+    '<div class="split" style="margin-top:14px">' +
+      card('채널별 총 조회수 <span class="smp">샘플</span>',
+        hbars({ data: Y.channels.map(c => ({ label: c.name, v: c.views })), vfmt: v => (v / 10000).toFixed(1) + "만" })
+      ) +
+      card('채널별 조회수 비중 <span class="smp">샘플</span>',
+        donut({
+          data: Y.channels.map(c => ({ label: c.name, v: c.views })),
+          centerLabel: "월 조회수", centerValue: (tViews / 10000).toFixed(0) + "만",
+          vfmt: v => (v / 10000).toFixed(1) + "만", aria: "채널별 조회수 비중"
+        })
+      ) +
+    '</div>'
+  ) +
+
+  /* 회고 */
+  section("이번달 회고",
+    '<div class="split">' +
+      card('✓ 잘된 점', notes(Y.wins, "good")) +
+      card('→ 시도할 것', notes(Y.tries, "todo")) +
+    '</div>',
+    "주신 예시 그대로 반영"
+  ) +
+
+  /* 짚어볼 점 */
+  section("짚어볼 점",
+    '<div class="card insight"><ul>' +
+      '<li><b>이 페이지의 수치는 실제 값이 아닙니다.</b> 아래 해석은 구조가 어떻게 읽히는지 보여주는 예시이며, 실제 숫자를 주시면 다시 작성하겠습니다.</li>' +
+      '<li>유튜브파트는 <b>유지개월 수가 핵심 지표</b>입니다. 객단가보다 유지 기간이 매출을 더 크게 좌우하니 이 숫자를 매달 추적하는 게 좋습니다.</li>' +
+      '<li><b>조회수 대비 문의 전환율</b>은 조회수가 실제 돈이 되는지 보는 지표입니다. 조회수만 오르고 전환율이 떨어지면 콘텐츠 방향이 어긋난 신호입니다.</li>' +
+      '<li>조회수가 상위 채널에 쏠려 있으면 그 채널 하나에 실적이 묶입니다. <b>채널별 비중 도넛</b>에서 쏠림을 확인하세요.</li>' +
+    '</ul></div>'
+  ) +
+
+  pageFooter() +
+  '</div>';
+</script>
+</body>
+</html>

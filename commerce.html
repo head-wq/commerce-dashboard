@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>커머스 · 팀별 현황판</title>
+<meta name="description" content="커머스팀 2026년 8월 현황">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+<div id="app"></div>
+
+<script src="./assets/data.js"></script>
+<script src="./assets/ui.js"></script>
+<script>
+const C = DATA.commerce;
+
+/* 브랜드 상세 블록 */
+function brandBlock(b, name, color) {
+  const stats = '<div class="grid g4">' + kpis([
+    { k: "8월 매출", v: b.revenue, n: b.gap, dir: b.rate >= 100 ? "up" : "dn" },
+    { k: "광고비 사용률", v: b.adRate, n: b.adSpend + " / " + b.adBase },
+    { k: "ROAS", v: b.roas, n: "광고비 대비 매출" },
+    { k: "인스타 팔로워", v: b.followers, n: "누적 조회수 " + b.views }
+  ]) + '</div>';
+
+  const chart = card(
+    '주별 매출 <em style="color:var(--ink-3);font-weight:600">· 만원</em>',
+    bars({ data: b.weeks, goal: b.weekGoal, color: color, height: 175, dim: true }),
+    '주 목표 ' + fmt(b.weekGoal) + '만'
+  );
+
+  const review = card(
+    '<span class="stars">★ ' + b.score + '</span> <span style="color:var(--ink-2);font-weight:600">8월 리뷰 평점</span>',
+    '<div class="grid g2" style="margin-bottom:13px">' +
+      '<div class="q best"><div class="tag">BEST ' + b.best.s + '</div><p>' + esc(b.best.t) + '</p></div>' +
+      '<div class="q worst"><div class="tag">WORST ' + b.worst.s + '</div><p>' + esc(b.worst.t) + '</p></div>' +
+    '</div>' +
+    '<span class="flag">⚠ ' + esc(b.pending) + '</span>'
+  );
+
+  return section(name,
+    stats +
+    '<div class="split-3-2" style="margin-top:14px">' + chart + review + '</div>',
+    b.rate >= 100 ? "목표 " + b.goal + " · " + b.rate + "% 달성" : "목표 " + b.goal + " · " + b.rate + "% (미달)"
+  );
+}
+
+const G = C.academyGrowth;
+
+document.getElementById("app").innerHTML =
+  nav("commerce") +
+  '<div class="wrap">' +
+
+  '<div class="head">' +
+    '<div><h1>커머스</h1><p class="sub">전체 매출과 프로덕트별 실적 · 아카데미 그로스 지원 현황</p></div>' +
+    '<div class="period">' + esc(DATA.meta.period) + '</div>' +
+  '</div>' +
+
+  '<div class="banner"><span class="ic">✅</span><span>' +
+    '<b>이 페이지는 대부분 실측값입니다.</b> 8월 PDF에서 확인한 수치이며, ' +
+    '<span class="smp">샘플</span> 표시가 붙은 항목만 아직 값을 못 받았습니다.' +
+  '</span></div>' +
+
+  /* 전체 매출 */
+  section("전체 매출",
+    '<div class="grid g4">' + kpis([
+      { k: "전체 매출", v: C.totalRevenue.v, n: C.totalRevenue.note, hi: true },
+      { k: "알루바프로", v: "3.47억", n: "목표 3억 · 116% 달성", dir: "up" },
+      { k: "더비랩 몰입의방", v: "7,672만", n: "목표 1억 · 77% (미달)", dir: "dn" },
+      { k: "대행", v: "2,300만", n: C.agency.clients.length + "개사" }
+    ]) + '</div>' +
+    '<div class="split" style="margin-top:14px">' +
+      card("프로덕트별 매출 비중",
+        donut({
+          data: C.products, centerLabel: "전체", centerValue: "4.47억",
+          vfmt: v => fmt(v) + "만", aria: "프로덕트별 매출 비중"
+        })
+      ) +
+      card("대행 고객사",
+        '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">' +
+          C.agency.clients.map(c => '<span class="q" style="padding:7px 13px;font-size:13px;font-weight:600;color:var(--ink-2)">' + esc(c) + '</span>').join("") +
+        '</div>' +
+        table({
+          cols: ["구분", "값"],
+          rows: [["8월 매출", { html: "<b>2,300만</b>" }], ["고객사 수", "4개사"], ["사당 평균", "575만"]]
+        })
+      ) +
+    '</div>'
+  ) +
+
+  brandBlock(C.alubapro, "알루바프로", "var(--c2)") +
+  brandBlock(C.derbylab, "더비랩 몰입의방", "var(--c3)") +
+
+  /* 아카데미 그로스 */
+  section("아카데미 그로스",
+    '<div class="grid g4">' + kpis([
+      { k: "콘텐츠 발행량", v: fmt(G.posts) + "개", n: "1·2차 라이브 광고 소재" },
+      { k: "조회수", v: "124만", n: "광고 노출 기준", sample: !G.viewsReal },
+      { k: "위닝 소재 (라이브)", v: fmt(G.winning) + "개", n: G.posts + "개 중 " + G.winRate + "%" },
+      { k: "CPL", v: fmt(G.cpl) + "원", n: "광고비 " + G.adSpend + " / " + fmt(G.leads) + "명" }
+    ]) + '</div>',
+    "커머스팀이 지원하는 아카데미 광고 지표"
+  ) +
+
+  /* 짚어볼 점 */
+  section("짚어볼 점",
+    '<div class="card insight"><ul>' +
+      '<li><b>더비랩은 유일한 미달(77%)인데 효율은 가장 좋습니다.</b> ROAS 545%로 알루바프로(462%)보다 높은데 광고비 사용률은 18.4%로 기준 25%에 못 미칩니다 — 예산을 더 태울 여지가 있습니다.</li>' +
+      '<li><b>더비랩 주별 매출이 우하향입니다.</b> 2,023 → 1,640 → 1,737 → 1,583만원으로, 주 목표 2,258만원을 한 주도 채우지 못했습니다.</li>' +
+      '<li><b>매출의 78%를 알루바프로 한 제품이 책임지고 있습니다.</b> 이 제품에 문제가 생기면 팀 전체 실적이 흔들립니다.</li>' +
+      '<li><b>리뷰 미대응이 4건 누적</b>돼 있습니다 (더비랩 8/20·8/30, 알루바프로 7/9·8/11). 알루바프로 7/9 건은 두 달 가까이 방치 상태입니다.</li>' +
+      '<li><b>알루바프로 최저 리뷰는 제품 결함성 피드백</b>입니다 — "끼우면 빼기 어렵고 브라켓 나사가 갈린다". 평점 4.95를 지키려면 CS 대응만으로는 부족하고 제품 개선 검토가 필요합니다.</li>' +
+    '</ul></div>'
+  ) +
+
+  pageFooter("5주차는 3일(8/29–8/31)만 집계된 부분 데이터입니다.") +
+  '</div>';
+</script>
+</body>
+</html>

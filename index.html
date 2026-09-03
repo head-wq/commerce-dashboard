@@ -3,269 +3,97 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>커머스팀 현황 · 2026년 8월</title>
-<meta name="description" content="커머스팀 2026년 8월 브랜드별 실적 대시보드">
+<title>팀별 현황판 · 2026년 8월</title>
+<meta name="description" content="아카데미 · 대행 마케팅 · 대행 유튜브 · 커머스 팀별 현황판">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
-<style>
-:root{
-  --bg:#f6f7f9; --panel:#ffffff; --panel-2:#fbfbfd;
-  --ink:#14171f; --ink-2:#5b6270; --ink-3:#8b91a0;
-  --line:#e6e8ee; --line-2:#f0f1f5;
-  --good:#0f9d6e; --good-bg:#e6f6f0;
-  --warn:#d97706; --warn-bg:#fdf3e3;
-  --bad:#dc2626;
-  --accent:#3b5bdb;
-}
-@media (prefers-color-scheme:dark){
-  :root{
-    --bg:#0e1015; --panel:#171a21; --panel-2:#1c2028;
-    --ink:#eef0f4; --ink-2:#a2a9b8; --ink-3:#6f7686;
-    --line:#272b35; --line-2:#21252d;
-    --good:#34d399; --good-bg:#0f2e24;
-    --warn:#fbbf24; --warn-bg:#33270d;
-    --bad:#f87171;
-    --accent:#7d95f5;
-  }
-}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{
-  margin:0; background:var(--bg); color:var(--ink);
-  font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;
-  font-feature-settings:"tnum";
-  line-height:1.5;
-}
-.wrap{max-width:1120px;margin:0 auto;padding:32px 20px 64px}
-
-.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px}
-.top h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
-.top .sub{margin:4px 0 0;color:var(--ink-2);font-size:14px}
-.period{
-  background:var(--panel);border:1px solid var(--line);border-radius:999px;
-  padding:7px 16px;font-size:13px;font-weight:700;color:var(--ink-2);white-space:nowrap;
-}
-
-.card{
-  background:var(--panel);border:1px solid var(--line);border-radius:16px;
-  padding:22px;margin-bottom:20px;
-}
-.card-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-.card-head h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
-.goal{font-size:13px;color:var(--ink-2);font-weight:600}
-.pill{font-size:12px;font-weight:800;padding:4px 11px;border-radius:999px}
-.pill.ok{background:var(--good-bg);color:var(--good)}
-.pill.no{background:var(--warn-bg);color:var(--warn)}
-.roas{margin-left:auto;font-size:13px;color:var(--ink-2);font-weight:600}
-.roas b{font-size:17px;color:var(--ink);font-weight:800;margin-left:6px}
-
-.body{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:24px}
-@media (max-width:820px){.body{grid-template-columns:1fr}}
-
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.stat{background:var(--panel-2);padding:14px 15px}
-.stat .k{font-size:11.5px;color:var(--ink-3);font-weight:600;margin-bottom:5px}
-.stat .v{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
-.stat .n{font-size:11.5px;color:var(--ink-2);margin-top:4px}
-.stat .n.up{color:var(--good);font-weight:700}
-.stat .n.dn{color:var(--bad);font-weight:700}
-
-.chart-t{font-size:12px;color:var(--ink-3);font-weight:600;margin-bottom:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.chart-t em{font-style:normal;color:var(--ink-2)}
-.chart{position:relative;height:190px;display:flex;align-items:flex-end;gap:10px;padding-top:22px}
-.goalline{position:absolute;left:0;right:0;border-top:1.5px dashed var(--ink-3);opacity:.75}
-.goalline span{
-  position:absolute;right:0;top:-9px;background:var(--panel);padding:0 6px;
-  font-size:10.5px;color:var(--ink-3);font-weight:700;
-}
-.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0}
-.bar .val{font-size:11.5px;font-weight:700;text-align:center;margin-bottom:5px;color:var(--ink-2);white-space:nowrap}
-.bar .fill{border-radius:6px 6px 3px 3px;min-height:3px}
-.bar .lab{font-size:11px;color:var(--ink-3);text-align:center;margin-top:8px;white-space:nowrap}
-
-.rev{margin-top:20px;padding-top:18px;border-top:1px solid var(--line-2)}
-.rev-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.rev-h .score{font-size:15px;font-weight:800}
-.rev-h .lbl{font-size:12.5px;color:var(--ink-2);font-weight:600}
-.flag{
-  margin-left:auto;font-size:11.5px;font-weight:700;color:var(--warn);
-  background:var(--warn-bg);padding:4px 10px;border-radius:6px;
-}
-.quotes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:640px){.quotes{grid-template-columns:1fr}}
-.q{background:var(--panel-2);border:1px solid var(--line-2);border-radius:10px;padding:12px 14px}
-.q .tag{font-size:10.5px;font-weight:800;letter-spacing:.04em;margin-bottom:6px}
-.q.best .tag{color:var(--good)}
-.q.worst .tag{color:var(--bad)}
-.q p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.55}
-
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-@media (max-width:700px){.grid4{grid-template-columns:1fr 1fr}}
-.clients{display:flex;flex-wrap:wrap;gap:8px}
-.chip{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:13px;font-weight:600;color:var(--ink-2)}
-
-.insight{border-left:3px solid var(--accent)}
-.insight h2{font-size:16px}
-.insight ul{margin:0;padding-left:18px}
-.insight li{font-size:13.5px;color:var(--ink-2);margin-bottom:9px;line-height:1.6}
-.insight li:last-child{margin-bottom:0}
-.insight b{color:var(--ink);font-weight:700}
-
-footer{margin-top:28px;text-align:center;color:var(--ink-3);font-size:12px;line-height:1.7}
-</style>
+<link rel="stylesheet" href="./assets/style.css">
 </head>
 <body>
-<div class="wrap">
+<div id="app"></div>
 
-  <div class="top">
-    <div>
-      <h1>커머스팀 현황</h1>
-      <p class="sub">2026년 8월 실적 · 브랜드별 목표 대비 성과</p>
-    </div>
-    <div class="period">2026.08.01 – 08.31</div>
-  </div>
-
-  <div id="brands"></div>
-
-  <div class="card">
-    <div class="card-head">
-      <h2>아카데미 · 초자립 올인원 강의</h2>
-      <span class="goal">1·2차 라이브 합계</span>
-    </div>
-    <div class="grid4">
-      <div class="stat"><div class="k">제작 광고 소재</div><div class="v">33개</div><div class="n">1·2차 합계</div></div>
-      <div class="stat"><div class="k">위닝 소재</div><div class="v">7개</div><div class="n">33개 중 21.2%</div></div>
-      <div class="stat"><div class="k">메타 광고 모집</div><div class="v">16,327명</div><div class="n">소재당 495명</div></div>
-      <div class="stat"><div class="k">CPL</div><div class="v">14,406원</div><div class="n">광고비 2.35억</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <h2>광고 소재 지원 · 대행</h2>
-      <span class="goal">4개사</span>
-      <span class="roas">8월 매출<b>2,300만</b></span>
-    </div>
-    <div class="clients">
-      <span class="chip">삼성SDS</span>
-      <span class="chip">연애의정석</span>
-      <span class="chip">동성회계법인</span>
-      <span class="chip">커넥트세무회계</span>
-    </div>
-  </div>
-
-  <div class="card insight">
-    <div class="card-head"><h2>짚어볼 점</h2></div>
-    <ul>
-      <li><b>더비랩은 유일한 미달(77%)인데 효율은 가장 좋습니다.</b> ROAS 545%로 알루바프로(462%)보다 높은데 광고비 사용률은 18.4%로 기준 25%에 못 미칩니다 — 예산을 더 태울 여지가 있습니다.</li>
-      <li><b>더비랩 주별 매출이 우하향입니다.</b> 2,023 → 1,640 → 1,737 → 1,583만원으로, 주 목표 2,258만원을 한 주도 채우지 못했습니다.</li>
-      <li><b>알루바프로는 목표를 116% 초과 달성</b>했고, 5주차 3일 만에 3,329만원을 올려 흐름이 좋습니다.</li>
-      <li><b>리뷰 미대응이 4건 누적</b>돼 있습니다 (더비랩 8/20·8/30, 알루바프로 7/9·8/11). 특히 알루바프로 7/9 건은 두 달 가까이 방치 상태입니다.</li>
-      <li><b>알루바프로 최저 리뷰는 제품 결함성 피드백</b>입니다 — "끼우면 빼기 어렵고 브라켓 나사가 갈린다". 평점 4.95를 지키려면 CS 대응만으로는 부족하고 제품 개선 검토가 필요합니다.</li>
-    </ul>
-  </div>
-
-  <footer>
-    출처: 커머스팀_현황_2026_08.pdf<br>
-    5주차는 3일(8/29–8/31)만 집계된 부분 데이터입니다.
-  </footer>
-</div>
-
+<script src="./assets/data.js"></script>
+<script src="./assets/ui.js"></script>
 <script>
-const BRANDS = [
+const TEAMS = [
   {
-    name:"더비랩 몰입의방",
-    goalText:"목표 1억", rate:77, hit:false,
-    roas:"545%",
-    revenue:"7,672만", revenueNote:"목표 대비 −2,328만", revenueDir:"dn",
-    adCost:"18.4%", adCostNote:"1,408만 / 기준 25%",
-    followers:"29,178", followersNote:"8월 말 기준",
-    views:"52.2만", viewsNote:"522,398회",
-    weekGoal:2258, unit:"만원",
-    weeks:[
-      {label:"1주", v:2023},{label:"2주", v:1640},{label:"3주", v:1737},
-      {label:"4주", v:1583},{label:"5주 (3일)", v:690}
-    ],
-    review:4.8,
-    best:"너무 잘 쓰고 있고 인생을 구원해 줬다", bestScore:"5.0",
-    worst:"가격에 비해 너무 조잡하다", worstScore:"3.0",
-    pending:"8/20, 8/30 대응 미입력"
+    href: "./academy.html", nm: "아카데미", ds: "초자립 판매 · 채널 마케팅 · 수강생 성과",
+    real: "광고 지표 실측",
+    mn: [
+      { k: "매출", v: "9.8억", s: true },
+      { k: "일 판매", v: "571건", s: true },
+      { k: "CPL", v: "14,406원", s: false }
+    ]
   },
   {
-    name:"알루바프로",
-    goalText:"목표 3억", rate:116, hit:true,
-    roas:"462%",
-    revenue:"3.47억", revenueNote:"목표 대비 +4,705만", revenueDir:"up",
-    adCost:"21.6%", adCostNote:"7,512만 / 기준 21%",
-    followers:"68,182", followersNote:"10만까지 68%",
-    views:"274.2만", viewsNote:"2,741,727회",
-    weekGoal:6774, unit:"만원",
-    weeks:[
-      {label:"1주", v:8093},{label:"2주", v:6817},{label:"3주", v:8011},
-      {label:"4주", v:8510},{label:"5주 (3일)", v:3329}
-    ],
-    review:4.95,
-    best:"안전을 본질로 두는 브랜드라 가격에도 고민 없이 구매", bestScore:"5.0",
-    worst:"끼우면 빼기 어렵고 브라켓 나사가 갈린다", worstScore:"2.0",
-    pending:"7/9, 8/11 대응 미입력"
+    href: "./agency-marketing.html", nm: "대행 마케팅파트", ds: "고객사 · 객단가 · 광고 운영 · 과제",
+    real: null,
+    mn: [
+      { k: "매출", v: "1.42억", s: true },
+      { k: "고객사", v: "23개사", s: true },
+      { k: "객단가", v: "617만", s: true }
+    ]
+  },
+  {
+    href: "./agency-youtube.html", nm: "대행팀 유튜브파트", ds: "유지개월 · 채널 조회수 · 문의 전환",
+    real: null,
+    mn: [
+      { k: "매출", v: "8,600만", s: true },
+      { k: "고객사", v: "12개사", s: true },
+      { k: "유지", v: "9.4개월", s: true }
+    ]
+  },
+  {
+    href: "./commerce.html", nm: "커머스", ds: "프로덕트별 매출 · 광고 효율 · 리뷰",
+    real: "전체 실측",
+    mn: [
+      { k: "매출", v: "4.47억", s: false },
+      { k: "알루바프로", v: "3.47억", s: false },
+      { k: "더비랩", v: "7,672만", s: false }
+    ]
   }
 ];
 
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const fmt = n => n.toLocaleString("ko-KR");
+const tcard = t =>
+  '<a class="tcard" href="' + t.href + '">' +
+    '<div class="nm">' + esc(t.nm) + (t.real ? ' <span class="smp" style="color:var(--good);background:var(--good-bg)">' + esc(t.real) + '</span>' : ' <span class="smp">전체 샘플</span>') + '</div>' +
+    '<div class="ds">' + esc(t.ds) + '</div>' +
+    '<div class="mn">' + t.mn.map(m =>
+      '<div>' + esc(m.k) + (m.s ? '<span class="smp">샘플</span>' : "") + '<b>' + esc(m.v) + '</b></div>'
+    ).join("") + '</div>' +
+  '</a>';
 
-function chart(b){
-  const max = Math.max(b.weekGoal, ...b.weeks.map(w => w.v)) * 1.12;
-  const color = b.hit ? "var(--good)" : "var(--warn)";
-  const bars = b.weeks.map(w => {
-    const h = (w.v / max * 100).toFixed(1);
-    const met = w.v >= b.weekGoal;
-    return '<div class="bar">' +
-      '<div class="val">' + fmt(w.v) + '</div>' +
-      '<div class="fill" style="height:' + h + '%;background:' + (met ? color : "var(--ink-3)") + ';opacity:' + (met ? 1 : .45) + '"></div>' +
-      '<div class="lab">' + esc(w.label) + '</div>' +
-    '</div>';
-  }).join("");
-  const ratio = (1 - b.weekGoal / max).toFixed(4);
-  return '<div>' +
-    '<div class="chart-t"><span>주별 매출 · ' + esc(b.unit) + '</span><em>주 목표 ' + fmt(b.weekGoal) + '만</em></div>' +
-    '<div class="chart">' +
-      '<div class="goalline" style="top:calc(22px + (100% - 41px) * ' + ratio + ')"><span>목표 ' + fmt(b.weekGoal) + '</span></div>' +
-      bars +
+document.getElementById("app").innerHTML =
+  nav("index") +
+  '<div class="wrap">' +
+
+  '<div class="hero">' +
+    '<h1>팀별 현황판</h1>' +
+    '<p>' + esc(DATA.meta.period) + ' 실적 · 팀을 선택하면 상세 지표를 볼 수 있습니다</p>' +
+  '</div>' +
+
+  '<div class="banner"><span class="ic">📌</span><span>' +
+    '<b>커머스팀만 실제 수치입니다.</b> 8월 PDF에서 받은 데이터라 전부 실측값이고, ' +
+    '아카데미는 광고 지표(소재 33개 · 위닝 7개 · CPL 14,406원 · 광고비 2.35억)만 실측입니다. ' +
+    '나머지는 화면 확인용 <span class="smp">샘플</span> 숫자이니 실제 값을 주시면 교체하겠습니다.' +
+  '</span></div>' +
+
+  '<div class="grid g2">' + TEAMS.map(tcard).join("") + '</div>' +
+
+  '<div class="sec" style="margin-top:26px">' +
+    '<div class="sec-h"><h2>수치 채워넣는 방법</h2></div>' +
+    '<div class="card">' +
+      '<div style="font-size:13.5px;color:var(--ink-2);line-height:1.8">' +
+        '모든 팀의 숫자는 <code style="background:var(--panel-3);padding:2px 6px;border-radius:4px">assets/data.js</code> 파일 <b style="color:var(--ink)">한 곳</b>에 모여 있습니다.<br>' +
+        '팀별로 구역이 나뉘어 있고, 숫자만 바꾸면 표·그래프·비율이 모두 자동으로 다시 계산됩니다.<br>' +
+        '값을 채운 항목은 <code style="background:var(--panel-3);padding:2px 6px;border-radius:4px">sample: true</code> 를 <code style="background:var(--panel-3);padding:2px 6px;border-radius:4px">false</code> 로 바꾸면 "샘플" 표시가 사라집니다.<br>' +
+        '<b style="color:var(--ink)">수정 후 GitHub에 올리면 사이트가 자동으로 갱신됩니다.</b>' +
+      '</div>' +
     '</div>' +
+  '</div>' +
+
+  pageFooter() +
   '</div>';
-}
-
-document.getElementById("brands").innerHTML = BRANDS.map(b =>
-  '<div class="card">' +
-    '<div class="card-head">' +
-      '<h2>' + esc(b.name) + '</h2>' +
-      '<span class="goal">' + esc(b.goalText) + '</span>' +
-      '<span class="pill ' + (b.hit ? "ok" : "no") + '">달성 ' + b.rate + '%</span>' +
-      '<span class="roas">ROAS<b>' + esc(b.roas) + '</b></span>' +
-    '</div>' +
-    '<div class="body">' +
-      '<div class="stats">' +
-        '<div class="stat"><div class="k">8월 매출</div><div class="v">' + esc(b.revenue) + '</div><div class="n ' + b.revenueDir + '">' + esc(b.revenueNote) + '</div></div>' +
-        '<div class="stat"><div class="k">광고비 사용률</div><div class="v">' + esc(b.adCost) + '</div><div class="n">' + esc(b.adCostNote) + '</div></div>' +
-        '<div class="stat"><div class="k">인스타 팔로워</div><div class="v">' + esc(b.followers) + '</div><div class="n">' + esc(b.followersNote) + '</div></div>' +
-        '<div class="stat"><div class="k">누적 조회수</div><div class="v">' + esc(b.views) + '</div><div class="n">' + esc(b.viewsNote) + '</div></div>' +
-      '</div>' +
-      chart(b) +
-    '</div>' +
-    '<div class="rev">' +
-      '<div class="rev-h">' +
-        '<span class="score">★ ' + b.review + '</span>' +
-        '<span class="lbl">8월 리뷰 평점</span>' +
-        '<span class="flag">⚠ ' + esc(b.pending) + '</span>' +
-      '</div>' +
-      '<div class="quotes">' +
-        '<div class="q best"><div class="tag">BEST ' + esc(b.bestScore) + '</div><p>' + esc(b.best) + '</p></div>' +
-        '<div class="q worst"><div class="tag">WORST ' + esc(b.worstScore) + '</div><p>' + esc(b.worst) + '</p></div>' +
-      '</div>' +
-    '</div>' +
-  '</div>'
-).join("");
 </script>
 </body>
 </html>
