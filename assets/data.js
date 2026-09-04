@@ -137,13 +137,24 @@ const DATA = {
 
   /* ═══════════ [4] 커머스 ═══════════ */
   commerce: {
-    totalRevenue: { v: "4.47억", note: "더비랩 + 알루바프로 + 대행", sample: false },
+    /* 커머스팀이 인식하는 매출 (원 단위) */
+    derbylabRevenueWon: 76720000,   // 더비랩 — 전액 인식
+    agencyRevenueWon:   23000000,   // 대행 4개사 — 전액 인식
 
-    products: [
-      { name: "알루바프로", v: 34760, color: "var(--c2)" },
-      { name: "더비랩",     v: 7672,  color: "var(--c3)" },
-      { name: "대행",       v: 2300,  color: "var(--c1)" }
-    ],
+    /* 알루바프로는 쉐어 구조라 판매매출 전액이 우리 매출이 아닙니다.
+       우리 매출 = 성과 수수료(온라인 판매매출 × 구간 요율) + 고정 용역비
+       요율표 출처: 알루바프로 계약 요율표 (사용자 첨부) */
+    alubaproShare: {
+      salesWon: 347600000,   // 8월 온라인 판매매출 3.476억
+      fixedWon: 3000000,     // 고정 용역비 월 300만원
+      tiers: [
+        { label: "1억원 미만",         min: 0,         max: 100000000, adBudget: 25, fee: 0 },
+        { label: "1억원 ~ 2억원 미만", min: 100000000, max: 200000000, adBudget: 23, fee: 3 },
+        { label: "2억원 ~ 3억원 미만", min: 200000000, max: 300000000, adBudget: 22, fee: 4 },
+        { label: "3억원 ~ 4억원 미만", min: 300000000, max: 400000000, adBudget: 21, fee: 5 },
+        { label: "4억원 이상",         min: 400000000, max: null,      adBudget: 20, fee: 6 }
+      ]
+    },
 
     derbylab: {
       revenue: "7,672만", goal: "1억", rate: 77, gap: "목표 대비 −2,328만",
