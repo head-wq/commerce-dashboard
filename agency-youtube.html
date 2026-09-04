@@ -16,100 +16,181 @@
 <script src="./assets/ui.js"></script>
 <script>
 const Y = DATA.agencyYoutube;
-const tViews = Y.channels.reduce((s, c) => s + c.views, 0);
+const A = Y.accounts;
+const live = A.filter(a => a.views != null);          // 조회수가 집계된 업체
+const pend = A.filter(a => a.views == null);          // 신규 · 자료 수집 중
+
+const totalFee   = A.reduce((s, a) => s + a.fee, 0);
+const totalViews = live.reduce((s, a) => s + a.views, 0);
+const wCtr       = (live.reduce((s, a) => s + a.views * a.ctr, 0) / totalViews).toFixed(1);
+const pendFee    = pend.reduce((s, a) => s + a.fee, 0);
+
+/* 문의전환 수집 상태 */
+const convNum   = A.filter(a => /^\d+건$/.test(a.conv));
+const convTalk  = A.filter(a => a.conv === "소통 중");
+const convNone  = A.filter(a => a.conv === "성과공유X");
+const convInq   = convNum.reduce((s, a) => s + parseInt(a.conv), 0);
+
+const man = w => (w / 10000).toLocaleString("ko-KR") + "만";
+const manW = w => (w / 10000).toLocaleString("ko-KR") + "만원";
+const vw = v => (v / 10000).toFixed(1) + "만";
 
 document.getElementById("app").innerHTML =
   nav("agency-youtube") +
   '<div class="wrap">' +
 
   '<div class="head">' +
-    '<div><h1>대행팀 유튜브파트</h1><p class="sub">고객사 유지 구조 · 채널별 조회수 · 문의 전환 · 이번달 회고</p></div>' +
+    '<div><h1>대행팀 유튜브파트</h1><p class="sub">업체별 계약·조회수 현황 · 유지 구조 · 이달의 소식</p></div>' +
     '<div class="period">' + esc(DATA.meta.period) + '</div>' +
   '</div>' +
 
-  '<div class="banner"><span class="ic">⚠️</span><span>' +
-    '<b>이 페이지의 숫자는 전부 샘플입니다.</b> 이 팀의 실제 수치를 아직 받지 못해, ' +
-    '화면 구성과 그래프가 어떻게 보이는지 확인할 수 있도록 임시 숫자를 넣어두었습니다. ' +
-    '<b>잘된 점 · 시도할 것</b>은 주신 예시를 그대로 넣어두었습니다.' +
+  '<div class="banner ok"><span class="ic">✅</span><span>' +
+    '<b>이 페이지는 전 항목 실측값입니다.</b> 출처: ' + esc(Y.source) + '. ' +
+    '9개사 계약금액 합계 ' + fmt(totalFee) + '원이 리포트 매출과 일치하는 것까지 확인했습니다.' +
   '</span></div>' +
 
   /* 팀 · 매출 */
   section("팀 · 매출",
-    '<div class="grid g4">' + kpis([
-      { k: "매출", v: Y.revenue.v, n: Y.revenue.note, hi: true, sample: true },
-      { k: "팀원 수", v: Y.members.v, n: Y.members.note, sample: true },
-      { k: "고객사 수", v: Y.clients.v, n: Y.clients.note, sample: true },
-      { k: "월 평균 객단가", v: Y.unitPrice.v, n: Y.unitPrice.note, sample: true }
-    ]) + '</div>' +
-    '<div style="margin-top:14px">' +
-      card('월별 매출 <span class="smp">샘플</span>',
-        bars({ data: Y.monthly, goal: Y.monthlyGoal, color: "var(--c6)", height: 170 }),
-        "만원 · 점선 = 월 목표 " + fmt(Y.monthlyGoal) + "만"
-      ) +
-    '</div>'
-  ) +
-
-  /* 유지 구조 */
-  section("고객사 유지 구조",
     '<div class="grid g5">' + kpis([
-      { k: "평균 유지개월", v: Y.retention.v, n: Y.retention.note, sample: true },
-      { k: "고객 생애가치 (LTV)", v: Y.ltv.v, n: Y.ltv.note, sample: true },
-      { k: "이번달 신규", v: Y.newClients.v, n: Y.newClients.note, dir: "up", sample: true },
-      { k: "이번달 해지", v: Y.lostClients.v, n: Y.lostClients.note, dir: "dn", sample: true },
-      { k: "순증", v: "+1개사", n: "신규 2 − 해지 1", dir: "up", sample: true }
-    ]) + '</div>' +
-    '<div style="margin-top:14px">' +
-      card('유지 기간이 만드는 매출 <span class="smp">샘플</span>',
-        '<div style="font-size:13px;color:var(--ink-2);line-height:1.7">' +
-          '고객사 한 곳을 유치하면 평균 <b style="color:var(--ink)">' + Y.retention.v + '</b> 동안 ' +
-          '월 <b style="color:var(--ink)">' + Y.unitPrice.v + '</b>씩, 총 <b style="color:var(--ink)">' + Y.ltv.v + '</b>의 매출이 발생합니다.<br>' +
-          '해지 1건은 단순히 이번달 ' + Y.unitPrice.v + ' 손실이 아니라 <b style="color:var(--bad)">남은 유지기간만큼의 매출</b>이 함께 사라지는 것입니다.' +
-        '</div>'
-      ) +
-    '</div>'
+      { k: "매출 (VAT 포함)", v: Y.revenue.v, n: Y.revenue.note, hi: true },
+      { k: "팀원 수", v: Y.members.v, n: Y.members.note },
+      { k: "고객사 수", v: Y.clients.v, n: Y.clients.note },
+      { k: "월평균 객단가", v: Y.unitPrice.v, n: Y.unitPrice.note },
+      { k: "평균 유지개월수", v: Y.retention.v, n: Y.retention.note }
+    ]) + '</div>'
   ) +
 
-  /* 조회수 · 문의 */
-  section("조회수 · 문의 전환",
-    '<div class="grid g3">' + kpis([
-      { k: "채널 총 조회수 / 월", v: (tViews / 10000).toFixed(1) + "만", n: fmt(tViews) + "회 · " + Y.channels.length + "개 채널", sample: true },
-      { k: "유입 문의", v: Y.inquiries.v, n: Y.inquiries.note, sample: true },
-      { k: "조회수 대비 문의 전환율", v: Y.inquiryRate.v, n: Y.inquiryRate.note, sample: true }
-    ]) + '</div>' +
-    '<div class="split" style="margin-top:14px">' +
-      card('채널별 총 조회수 <span class="smp">샘플</span>',
-        hbars({ data: Y.channels.map(c => ({ label: c.name, v: c.views })), vfmt: v => (v / 10000).toFixed(1) + "만" })
+  /* 업체별 현황 */
+  section("업체별 현황",
+    card("",
+      table({
+        cols: ["업체 (채널)", "분야", "개월차", "월 계약금액", "8월 조회수", "CTR", "문의전환"],
+        rows: A.map((a, i) => [
+          { html: '<span class="dot" style="background:' + (a.views == null ? "var(--ink-4)" : ["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)","var(--c1)"][i % 7]) + '"></span>' +
+                  '<b>' + esc(a.name) + '</b>' + (a.isNew ? ' <span class="smp" style="color:var(--accent);background:var(--accent-bg)">신규</span>' : "") +
+                  '<br><span style="color:var(--ink-3);font-size:11.5px">' + esc(a.channel) + '</span>' },
+          esc(a.field),
+          a.months == null ? "–" : a.months + "개월차",
+          { html: "<b>" + manW(a.fee) + "</b>" },
+          a.views == null ? "–" : fmt(a.views) + "회",
+          a.ctr == null ? "–" : a.ctr + "%",
+          { html: /^\d+건$/.test(a.conv) ? '<b style="color:var(--good)">' + esc(a.conv) + '</b>' :
+                  a.conv === "성과공유X" ? '<span style="color:var(--bad)">' + esc(a.conv) + '</span>' :
+                  '<span style="color:var(--ink-3)">' + esc(a.conv) + '</span>' }
+        ]),
+        foot: ["합계 " + A.length + "곳", "", "", manW(totalFee), fmt(totalViews) + "회", wCtr + "%", ""]
+      }),
+      "CTR 합계는 조회수 가중평균"
+    ) +
+    '<div style="font-size:12px;color:var(--ink-3);margin-top:10px;line-height:1.6">' + esc(Y.accountsNote) + '</div>'
+  ) +
+
+  /* 계약금액 · 조회수 */
+  section("계약금액 · 조회수 비교",
+    '<div class="split">' +
+      card("업체별 월 계약금액",
+        hbars({ data: A.map(a => ({ label: a.name, v: a.fee })), vfmt: man })
       ) +
-      card('채널별 조회수 비중 <span class="smp">샘플</span>',
+      card("업체별 8월 조회수",
+        hbars({ data: live.map(a => ({ label: a.name, v: a.views })), vfmt: vw }) +
+        '<div style="font-size:11.5px;color:var(--ink-3);margin-top:12px">신규 2곳(모두모의원·조유라 변호사)은 조회수 집계 전입니다.</div>'
+      ) +
+    '</div>' +
+    '<div class="split" style="margin-top:14px">' +
+      card("업체별 CTR",
+        hbars({ data: live.map(a => ({ label: a.name, v: a.ctr })), vfmt: v => v + "%" }),
+        "조회수 가중평균 " + wCtr + "%"
+      ) +
+      card("조회수 비중",
         donut({
-          data: Y.channels.map(c => ({ label: c.name, v: c.views })),
-          centerLabel: "월 조회수", centerValue: (tViews / 10000).toFixed(0) + "만",
-          vfmt: v => (v / 10000).toFixed(1) + "만", aria: "채널별 조회수 비중"
+          data: live.map(a => ({ label: a.name, v: a.views })),
+          centerLabel: "8월 조회수", centerValue: vw(totalViews),
+          vfmt: vw, aria: "업체별 조회수 비중"
         })
       ) +
     '</div>'
   ) +
 
-  /* 회고 */
-  section("이번달 회고",
+  /* 유지 구조 */
+  section("유지 구조 · 고객사 증감",
+    '<div class="grid g4">' + kpis([
+      { k: "고객 생애가치 (LTV)", v: Y.ltv.v, n: Y.ltv.note, hi: true },
+      { k: "이번달 신규", v: Y.newClients.v, n: Y.newClients.note, dir: "up" },
+      { k: "이번달 해지", v: Y.lostClients.v, n: Y.lostClients.note, dir: "dn" },
+      { k: "순증", v: "+1곳", n: "신규 2 − 해지 1", dir: "up" }
+    ]) + '</div>' +
+    '<div class="split" style="margin-top:14px">' +
+      card("유지 기간이 만드는 매출",
+        '<div style="font-size:13px;color:var(--ink-2);line-height:1.7">' +
+          '고객사 한 곳을 유치하면 평균 <b style="color:var(--ink)">' + Y.retention.v + '</b> 동안 ' +
+          '월 <b style="color:var(--ink)">' + Y.unitPrice.v + '</b>씩, 총 <b style="color:var(--ink)">' + Y.ltv.v + '</b>의 매출이 발생합니다.<br><br>' +
+          '해지 1건은 이번달 ' + Y.unitPrice.v + ' 손실이 아니라 <b style="color:var(--bad)">남은 유지기간만큼의 매출</b>이 함께 사라지는 것입니다. ' +
+          '평균 유지 27.3개월은 대행 계약으로는 상당히 긴 편이라, 이 팀의 가장 큰 자산입니다.' +
+        '</div>'
+      ) +
+      card("8월 해지 업체",
+        '<div class="q worst" style="margin-bottom:13px">' +
+          '<div class="tag">해지 · 10월까지 계약 마무리</div>' +
+          '<p><b style="color:var(--ink)">' + esc(Y.churned.name) + '</b> — ' + esc(Y.churned.channel) + '</p>' +
+        '</div>' +
+        '<div class="grid g2">' + kpis([
+          { k: "누적 조회수", v: fmt(Y.churned.views) + "회", n: "해지 시점 기준" },
+          { k: "CTR", v: Y.churned.ctr + "%", n: "팀 평균 " + wCtr + "%" }
+        ]) + '</div>'
+      ) +
+    '</div>'
+  ) +
+
+  /* 문의전환 수집 현황 */
+  section("문의전환 수집 현황",
+    '<div class="split-3-2">' +
+      card("업체별 성과 데이터 확보 상태",
+        progress([
+          { label: "문의 건수를 숫자로 받은 업체", pct: Math.round(convNum.length / A.length * 100),
+            note: convNum.length + "곳 / " + A.length + "곳 — " + convNum.map(a => a.name + " " + a.conv).join(", "), color: "var(--good)" },
+          { label: "소통 중 (수치 미확정)", pct: Math.round(convTalk.length / A.length * 100),
+            note: convTalk.length + "곳 — " + convTalk.map(a => a.name).join(", "), color: "var(--warn)" },
+          { label: "성과 공유 거부", pct: Math.round(convNone.length / A.length * 100),
+            note: convNone.length + "곳 — " + convNone.map(a => a.name).join(", "), color: "var(--bad)" },
+          { label: "해당 없음 (신규)", pct: Math.round(pend.length / A.length * 100),
+            note: pend.length + "곳 — " + pend.map(a => a.name).join(", "), color: "var(--ink-3)" }
+        ])
+      ) +
+      card("요약",
+        '<div class="grid g2">' + kpis([
+          { k: "확인된 문의", v: convInq + "건", n: convNum.length + "곳에서만 집계" },
+          { k: "총 조회수", v: vw(totalViews), n: fmt(totalViews) + "회 · " + live.length + "개 채널" }
+        ]) + '</div>' +
+        '<div style="font-size:12.5px;color:var(--ink-2);margin-top:14px;line-height:1.65">' +
+          '조회수 <b style="color:var(--ink)">' + vw(totalViews) + '</b>가 실제 문의로 얼마나 이어졌는지는 ' +
+          '<b style="color:var(--bad)">9곳 중 1곳</b>에서만 숫자로 확인됩니다. ' +
+          '조회수 대비 문의 전환율은 지금 데이터로는 계산할 수 없습니다.' +
+        '</div>'
+      ) +
+    '</div>'
+  ) +
+
+  /* 이달의 소식 · 시도할 것 */
+  section("이달의 소식 · 시도할 것",
     '<div class="split">' +
-      card('✓ 잘된 점', notes(Y.wins, "good")) +
+      card('✓ 이달의 소식', notes(Y.news, "good")) +
       card('→ 시도할 것', notes(Y.tries, "todo")) +
-    '</div>',
-    "주신 예시 그대로 반영"
+    '</div>'
   ) +
 
   /* 짚어볼 점 */
   section("짚어볼 점",
     '<div class="card insight"><ul>' +
-      '<li><b>이 페이지의 수치는 실제 값이 아닙니다.</b> 아래 해석은 구조가 어떻게 읽히는지 보여주는 예시이며, 실제 숫자를 주시면 다시 작성하겠습니다.</li>' +
-      '<li>유튜브파트는 <b>유지개월 수가 핵심 지표</b>입니다. 객단가보다 유지 기간이 매출을 더 크게 좌우하니 이 숫자를 매달 추적하는 게 좋습니다.</li>' +
-      '<li><b>조회수 대비 문의 전환율</b>은 조회수가 실제 돈이 되는지 보는 지표입니다. 조회수만 오르고 전환율이 떨어지면 콘텐츠 방향이 어긋난 신호입니다.</li>' +
-      '<li>조회수가 상위 채널에 쏠려 있으면 그 채널 하나에 실적이 묶입니다. <b>채널별 비중 도넛</b>에서 쏠림을 확인하세요.</li>' +
+      '<li><b>조성구 변호사가 조회수·CTR 모두 1위인데 계약금액은 3위입니다.</b> 39.7만 조회 · CTR 11.1%(팀 평균 ' + wCtr + '%)로 압도적인데 월 550만원입니다. 46개월차 최장기 고객이기도 해서, 재계약 시 단가 조정 여지를 검토할 만합니다.</li>' +
+      '<li><b>신규 2곳이 매출의 26%인데 아직 성과가 0입니다.</b> 모두모의원·조유라 변호사가 각 660만원, 합쳐 ' + man(pendFee) + '원입니다. 초기 3~6개월에 조회수가 안 붙으면 이 금액이 통째로 해지 위험에 놓입니다.</li>' +
+      '<li><b>문의전환 데이터가 9곳 중 1곳에만 있습니다.</b> 청담해리슨 10건이 전부이고 5곳은 "소통 중", 1곳은 "성과공유X"입니다. 조회수는 증명되는데 그게 고객사 매출로 이어졌는지는 증명이 안 되는 상태라, 재계약 협상에서 가장 취약한 지점입니다.</li>' +
+      '<li><b>계약금액과 성과가 비례하지 않습니다.</b> 청담해리슨은 286만원에 8.5만 조회·CTR 9.9%인데, 창원수신경외과는 660만원에 5만 조회·CTR 5.7%입니다. 신규·기존 단가 기준이 다른 것으로 보이니 정리가 필요합니다.</li>' +
+      '<li><b>해지한 이비안 한의원의 CTR은 7.7%로 나쁘지 않았습니다.</b> 팀 평균 ' + wCtr + '%에 근접하고 릴스 15만 조회도 나왔는데 해지됐습니다. 성과 외 요인(커뮤니케이션·기대치·단가)을 짚어봐야 같은 해지를 막을 수 있습니다.</li>' +
+      '<li><b>평균 유지 27.3개월은 이 팀의 핵심 자산입니다.</b> LTV 1.56억이라 신규 유치보다 기존 유지가 훨씬 남는 구조입니다.</li>' +
     '</ul></div>'
   ) +
 
-  pageFooter() +
+  pageFooter("출처: " + Y.source) +
   '</div>';
 </script>
 </body>

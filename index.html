@@ -35,12 +35,12 @@ const TEAMS = [
     ]
   },
   {
-    href: "./agency-youtube.html", nm: "대행팀 유튜브파트", ds: "유지개월 · 채널 조회수 · 문의 전환",
-    real: null,
+    href: "./agency-youtube.html", nm: "대행팀 유튜브파트", ds: "업체별 계약·조회수 · 유지 구조 · 이달의 소식",
+    real: "전체 실측",
     mn: [
-      { k: "매출", v: "8,600만", s: true },
-      { k: "고객사", v: "12개사", s: true },
-      { k: "유지", v: "9.4개월", s: true }
+      { k: "매출", v: "5,148만", s: false },
+      { k: "고객사", v: "9곳", s: false },
+      { k: "평균 유지", v: "27.3개월", s: false }
     ]
   },
   {
@@ -73,9 +73,10 @@ document.getElementById("app").innerHTML =
   '</div>' +
 
   '<div class="banner"><span class="ic">📌</span><span>' +
-    '<b>커머스팀만 실제 수치입니다.</b> 8월 PDF에서 받은 데이터라 전부 실측값이고, ' +
-    '아카데미는 광고 지표(소재 33개 · 위닝 7개 · CPL 14,406원 · 광고비 2.35억)만 실측입니다. ' +
-    '나머지는 화면 확인용 <span class="smp">샘플</span> 숫자이니 실제 값을 주시면 교체하겠습니다.' +
+    '<b>커머스 · 유튜브파트는 실측값입니다.</b> 각각 8월 PDF와 유튜브파트 8월 성과 리포트에서 받은 데이터입니다. ' +
+    '아카데미는 광고 지표(소재 33개 · 위닝 7개 · CPL 14,406원 · 광고비 2.35억)만 실측이고, ' +
+    '<b>대행 마케팅파트는 아직 자료를 받지 못했습니다.</b> ' +
+    '<span class="smp">샘플</span> 표시가 붙은 숫자는 화면 확인용 임시 값입니다.' +
   '</span></div>' +
 
   '<div class="grid g2">' + TEAMS.map(tcard).join("") + '</div>' +

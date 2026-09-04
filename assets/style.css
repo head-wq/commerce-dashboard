@@ -57,6 +57,8 @@ a{color:inherit}
 }
 .banner b{color:var(--warn)}
 .banner .ic{font-size:15px;line-height:1.35}
+.banner.ok{background:var(--good-bg)}
+.banner.ok b{color:var(--good)}
 
 /* sample chip */
 .smp{

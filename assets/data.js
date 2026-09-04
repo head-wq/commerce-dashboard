@@ -88,42 +88,50 @@ const DATA = {
     ]
   },
 
-  /* ═══════════ [3] 대행팀 유튜브파트 ═══════════ */
+  /* ═══════════ [3] 대행팀 유튜브파트 ═══════════
+     출처: 대행팀(YouTube 파트) 8월 성과 리포트 · 작성일 2026-09-03
+     전 항목 실측값입니다. */
   agencyYoutube: {
-    sampleAll: true,
-    members:    { v: "5명",     note: "PD 3 · 편집 1 · 리더 1" },
-    revenue:    { v: "8,600만", note: "인당 1,720만" },
-    clients:    { v: "12개사",  note: "전월 11개사" },
-    unitPrice:  { v: "717만",   note: "월 평균 객단가" },
-    retention:  { v: "9.4개월", note: "평균 유지 기간" },
-    ltv:        { v: "6,740만", note: "객단가 × 유지개월" },
-    newClients: { v: "2개사",   note: "이번달 신규" },
-    lostClients:{ v: "1개사",   note: "이번달 해지" },
-    inquiryRate:{ v: "0.09%",   note: "조회수 109만 → 문의 982건" },
-    inquiries:  { v: "982건",   note: "이번달 유입 문의" },
+    sampleAll: false,
+    source: "대행팀(YouTube 파트) 8월 성과 리포트 · 2026-09-03 작성",
 
-    channels: [
-      { name: "최용희TV",     views: 412000 },
-      { name: "조성구",       views: 218400 },
-      { name: "이상한마케팅", views: 156200 },
-      { name: "닥터윤",       views: 98700 },
-      { name: "김대표",       views: 62400 },
-      { name: "기타 7개 채널", views: 143800 }
+    revenue:    { v: "5,148만", note: "VAT 포함 · 9개사 계약금액 합계" },
+    members:    { v: "4명",     note: "인당 1,287만" },
+    clients:    { v: "9곳",     note: "신규 2 · 해지 1" },
+    unitPrice:  { v: "572만",   note: "5,148만 / 9곳" },
+    retention:  { v: "27.3개월", note: "진행 중 7곳 기준" },
+    ltv:        { v: "1.56억",  note: "객단가 572만 × 27.3개월" },
+    newClients: { v: "2곳",     note: "모두모의원 · 조유라 변호사" },
+    lostClients:{ v: "1곳",     note: "이비안 한의원" },
+
+    /* 업체별 현황 — fee: 월 계약금액(원), views: 8월 누적 조회수, ctr: %, conv: 문의전환 */
+    accounts: [
+      { name: "조성구 변호사",   channel: "슬기로운 이혼수업",      field: "이혼전문변호사",    months: 46, fee: 5500000, views: 397000, ctr: 11.1, conv: "소통 중" },
+      { name: "최용희 변호사",   channel: "용희주도한최변",        field: "형사전문변호사",    months: 34, fee: 7700000, views: 293000, ctr: 6.6,  conv: "소통 중" },
+      { name: "정재현 변호사",   channel: "민생구조대",           field: "부동산·민사변호사", months: 32, fee: 6050000, views: 340000, ctr: 6.7,  conv: "성과공유X" },
+      { name: "디지털프라임",    channel: "디지털정원장",          field: "치과",             months: 38, fee: 2970000, views: 233000, ctr: 6.6,  conv: "소통 중" },
+      { name: "청담해리슨",     channel: "척추박사 닥터 해리슨",   field: "신경외과(수술)",    months: 33, fee: 2860000, views: 85000,  ctr: 9.9,  conv: "10건" },
+      { name: "창원수신경외과",  channel: "통증단속반",            field: "신경외과(비수술)",  months: 6,  fee: 6600000, views: 50000,  ctr: 5.7,  conv: "소통 중" },
+      { name: "모모동물의료센터", channel: "산책가까?",            field: "동물병원",          months: 3,  fee: 6600000, views: 12000,  ctr: 4.1,  conv: "소통 중" },
+      { name: "모두모의원",     channel: "헤어 나오는 시간",       field: "피부과/모발",       months: null, fee: 6600000, views: null, ctr: null, conv: "-", isNew: true },
+      { name: "조유라 변호사",   channel: "준비 중",              field: "-",                months: null, fee: 6600000, views: null, ctr: null, conv: "-", isNew: true }
     ],
+    accountsNote: "“–” 는 자료 수집 중인 항목입니다 (모두모의원·조유라 변호사의 조회수·CTR·진행 개월차). 신규 2곳의 문의전환은 아직 해당 사항이 없습니다.",
 
-    monthly: [{ label: "3월", v: 6200 }, { label: "4월", v: 6800 }, { label: "5월", v: 7100 },
-              { label: "6월", v: 7600 }, { label: "7월", v: 8100 }, { label: "8월", v: 8600 }],
-    monthlyGoal: 9000,
+    churned: {
+      name: "이비안 한의원", channel: "이명난청완치학교",
+      views: 197000, ctr: 7.7, note: "10월까지 계약 마무리"
+    },
 
-    wins: [
-      "<b>최용희 TV 출연</b> — 지상파 노출 이후 채널 유입 급증",
-      "<b>조성구 20만 조회</b> 터짐 — 단일 영상 최고 기록",
-      "썸네일 A/B 테스트 도입 후 평균 CTR 개선"
+    news: [
+      "<b>최용희 변호사</b> 릴스 <b>41만 조회</b> 달성",
+      "<b>최용희 변호사</b> KBS 〈스모킹건〉·〈사건의뢰〉 출연 · 9월 〈시간추적자 설록〉 출연 예정 (촬영 완료)",
+      "<b>조성구 변호사</b> 콘텐츠 <b>20만 조회</b> 달성",
+      "<b>이비안 한의원</b> 릴스 <b>15만 조회</b> 달성"
     ],
     tries: [
-      "<b>다이소 물품 구매</b> — 소품 예산 절감 실험",
-      "<b>크루 최적화</b> — 촬영·편집 인력 배치 재설계",
-      "쇼츠 전용 편집 포맷 테스트"
+      "<b>현장 브이로그형 콘텐츠</b> 지속 시도 — 다이소 리뷰, 댓글읽기 등 가벼운 정보성·시청자 참여형 포맷",
+      "<b>모두모의원 숏폼 중심 채널 운영으로 전환</b> — 기존 롱폼 위주에서 숏폼 비중 확대"
     ]
   },
 
