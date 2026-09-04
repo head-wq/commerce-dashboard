@@ -30,7 +30,6 @@ const convTalk  = A.filter(a => a.conv === "소통 중");
 const convNone  = A.filter(a => a.conv === "성과공유X");
 const convInq   = convNum.reduce((s, a) => s + parseInt(a.conv), 0);
 
-const manW = w => (w / 10000).toLocaleString("ko-KR") + "만원";
 const vw = v => (v / 10000).toFixed(1) + "만";
 
 document.getElementById("app").innerHTML =
@@ -62,21 +61,20 @@ document.getElementById("app").innerHTML =
   section("업체별 현황",
     card("",
       table({
-        cols: ["업체 (채널)", "분야", "개월차", "월 계약금액", "8월 조회수", "CTR", "문의전환"],
+        cols: ["업체 (채널)", "분야", "개월차", "8월 조회수", "CTR", "문의전환"],
         rows: A.map((a, i) => [
           { html: '<span class="dot" style="background:' + (a.views == null ? "var(--ink-4)" : ["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)","var(--c1)"][i % 7]) + '"></span>' +
                   '<b>' + esc(a.name) + '</b>' + (a.isNew ? ' <span class="smp" style="color:var(--accent);background:var(--accent-bg)">신규</span>' : "") +
                   '<br><span style="color:var(--ink-3);font-size:11.5px">' + esc(a.channel) + '</span>' },
           esc(a.field),
           a.months == null ? "–" : a.months + "개월차",
-          { html: "<b>" + manW(a.fee) + "</b>" },
           a.views == null ? "–" : fmt(a.views) + "회",
           a.ctr == null ? "–" : a.ctr + "%",
           { html: /^\d+건$/.test(a.conv) ? '<b style="color:var(--good)">' + esc(a.conv) + '</b>' :
                   a.conv === "성과공유X" ? '<span style="color:var(--bad)">' + esc(a.conv) + '</span>' :
                   '<span style="color:var(--ink-3)">' + esc(a.conv) + '</span>' }
         ]),
-        foot: ["합계 " + A.length + "곳", "", "", manW(totalFee), fmt(totalViews) + "회", wCtr + "%", ""]
+        foot: ["합계 " + A.length + "곳", "", "", fmt(totalViews) + "회", wCtr + "%", ""]
       }),
       "CTR 합계는 조회수 가중평균"
     ) +

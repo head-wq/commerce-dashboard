@@ -24,11 +24,6 @@ const feeWon    = Math.round(S.salesWon * tier.fee / 100);   // 성과 수수료
 const shareWon  = feeWon + S.fixedWon;                        // 커머스팀 인식 매출
 const totalWon  = C.derbylabRevenueWon + shareWon + C.agencyRevenueWon;
 
-/* 다음 구간까지 남은 금액 */
-const nextTier  = S.tiers[S.tiers.indexOf(tier) + 1];
-const toNext    = nextTier ? nextTier.min - S.salesWon : 0;
-const nextShare = nextTier ? Math.round(nextTier.min * nextTier.fee / 100) + S.fixedWon : 0;
-
 /* 억 표기 — 원본 PDF와 맞추기 위해 반올림하지 않고 절사합니다 (3.476억 → 3.47억) */
 const eok = w => {
   const v = Math.floor(w / 1000000) / 100;
@@ -117,50 +112,6 @@ document.getElementById("app").innerHTML =
     '</div>'
   ) +
 
-  /* 알루바프로 쉐어 정산 */
-  section("알루바프로 쉐어 정산",
-    '<div class="grid g4">' + kpis([
-      { k: "온라인 판매매출", v: eok(S.salesWon), n: "8월 알루바프로 판매 총액" },
-      { k: "적용 구간", v: tier.label.replace(/원/g, "").replace(" ~ ", "~"), n: "광고비 예산 " + tier.adBudget + "% · 수수료 " + tier.fee + "%" },
-      { k: "성과 수수료", v: man(feeWon) + "원", n: eok(S.salesWon) + " × " + tier.fee + "%" },
-      { k: "커머스팀 인식 매출", v: man(shareWon) + "원", n: "수수료 " + man(feeWon) + " + 용역비 " + man(S.fixedWon), hi: true }
-    ]) + '</div>' +
-    '<div class="split-3-2" style="margin-top:14px">' +
-      card("계약 요율표",
-        table({
-          cols: ["월 온라인 판매 매출", "광고비 예산", "성과 수수료", "고정 용역비"],
-          rows: S.tiers.map(t => {
-            const on = t === tier;
-            const w = s => on ? '<b style="color:var(--accent)">' + s + '</b>' : s;
-            return [
-              { html: (on ? '<span class="dot" style="background:var(--accent)"></span>' : '<span class="dot" style="background:transparent"></span>') + w(esc(t.label)) },
-              { html: w(t.adBudget + "%") },
-              { html: w(t.fee === 0 ? "없음" : "판매매출의 " + t.fee + "%") },
-              { html: w(man(S.fixedWon) + "원") }
-            ];
-          })
-        }),
-        "파란 행이 8월 적용 구간"
-      ) +
-      card("다음 구간까지",
-        nextTier ?
-          progress([{
-            label: nextTier.label + " 도달률",
-            pct: Number((S.salesWon / nextTier.min * 100).toFixed(1)),
-            note: eok(S.salesWon) + " / " + eok(nextTier.min) + " — " + man(toNext) + "원 남음",
-            color: "var(--accent)"
-          }]) +
-          '<div style="font-size:12.5px;color:var(--ink-2);margin-top:14px;line-height:1.7">' +
-            '판매매출이 <b style="color:var(--ink)">' + eok(nextTier.min) + '</b>을 넘기면 수수료율이 ' +
-            '<b style="color:var(--ink)">' + tier.fee + '% → ' + nextTier.fee + '%</b>로 올라갑니다.<br>' +
-            '그 시점 인식 매출은 <b style="color:var(--good)">' + man(nextShare) + '원</b>으로, ' +
-            '지금보다 <b style="color:var(--good)">' + man(nextShare - shareWon) + '원</b> 늘어납니다.' +
-          '</div>'
-        : '<div style="font-size:13px;color:var(--ink-2)">최고 구간입니다.</div>'
-      ) +
-    '</div>'
-  ) +
-
   brandBlock(C.alubapro, "알루바프로", "var(--c2)",
     "판매매출 기준 · 목표 " + C.alubapro.goal + " · " + C.alubapro.rate + "% 달성 (팀 인식 매출은 쉐어 " + man(shareWon) + "원)") +
 
@@ -176,19 +127,6 @@ document.getElementById("app").innerHTML =
       { k: "CPL", v: fmt(G.cpl) + "원", n: "광고비 " + G.adSpend + " / " + fmt(G.leads) + "명" }
     ]) + '</div>',
     "커머스팀이 지원하는 아카데미 광고 지표"
-  ) +
-
-  /* 짚어볼 점 */
-  section("짚어볼 점",
-    '<div class="card insight"><ul>' +
-      '<li><b>쉐어 구조를 반영하면 팀 매출의 주축은 더비랩입니다.</b> 알루바프로는 판매매출 ' + eok(S.salesWon) + '으로 목표를 116% 넘겼지만 실제 인식 매출은 ' + man(shareWon) + '원(전체의 ' + (shareWon / totalWon * 100).toFixed(0) + '%)입니다. 더비랩이 ' + man(C.derbylabRevenueWon) + '원으로 ' + (C.derbylabRevenueWon / totalWon * 100).toFixed(0) + '%를 차지합니다.</li>' +
-      '<li><b>그래서 더비랩 미달(77%)이 팀 실적에 미치는 타격이 알루바프로 초과달성보다 큽니다.</b> 더비랩은 ROAS 545%로 효율이 가장 좋은데 광고비를 기준(25%)의 18.4%밖에 쓰지 않았습니다 — 예산을 더 태울 여지가 있습니다.</li>' +
-      '<li><b>알루바프로 판매매출을 ' + man(toNext) + '원만 더 올리면 수수료율이 ' + tier.fee + '%→' + nextTier.fee + '%로 뜁니다.</b> 인식 매출이 ' + man(shareWon) + '원에서 ' + man(nextShare) + '원으로 ' + man(nextShare - shareWon) + '원 늘어납니다. 9월에 노려볼 만한 구간입니다.</li>' +
-      '<li><b>알루바프로 광고비가 계약상 예산을 넘겼습니다.</b> 3억~4억 구간의 광고비 예산은 ' + tier.adBudget + '%인데 실제 사용률은 ' + C.alubapro.adRate + '입니다. 소폭이지만 계약 조건이라 확인이 필요합니다.</li>' +
-      '<li><b>더비랩 주별 매출이 우하향입니다.</b> 2,023 → 1,640 → 1,737 → 1,583만원으로, 주 목표 2,258만원을 한 주도 채우지 못했습니다.</li>' +
-      '<li><b>리뷰 미대응이 4건 누적</b>돼 있습니다 (더비랩 8/20·8/30, 알루바프로 7/9·8/11). 알루바프로 7/9 건은 두 달 가까이 방치 상태입니다.</li>' +
-      '<li><b>알루바프로 최저 리뷰는 제품 결함성 피드백</b>입니다 — "끼우면 빼기 어렵고 브라켓 나사가 갈린다". 평점 4.95를 지키려면 CS 대응만으로는 부족하고 제품 개선 검토가 필요합니다.</li>' +
-    '</ul></div>'
   ) +
 
   pageFooter("5주차는 3일(8/29–8/31)만 집계된 부분 데이터입니다. 알루바프로 쉐어는 첨부 요율표 기준으로 계산했습니다.") +
